@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<title>Uloha 1 - Knespl Daniel</title>
+</head>
+<body>
+
+<canvas id="src"></canvas>
+<canvas id="AvgGrayscale"></canvas>
+<canvas id="HumanGrayscale"></canvas>
+<canvas id="RGBMinis"></canvas>
+<canvas id="CMYKMinis"></canvas>
+
+
+<script type="text/javascript">
+	/* funky stuff happens with img with width/height not divisible by 4
+		potentially fixable with some width/height check + offset using modulo 4
+	*/
+	window.onload = function() {
+		/* Load source image */
+		var srcCanvas = document.getElementById("src");
+		var srcContext = srcCanvas.getContext("2d");
+		var srcImg = new Image();
+		//srcImg.src = "./img/alpha_test.png";
+		srcImg.src = "./img/lena.png";
+
+		srcImg.onload = function () {
+			var imgHeight = srcImg.height;
+			var imgWidth = srcImg.width;
+
+			srcCanvas.width=imgWidth;
+			srcCanvas.height=imgHeight;
+			srcContext.drawImage(srcImg, 0, 0);
+
+			var srcImageData = srcContext.getImageData(0, 0, imgWidth, imgHeight);
+			var srcData = srcImageData.data;
+		//Canvas setup
+			//Grayscale AVG 
+			var dstCanvas = document.getElementById("AvgGrayscale");
+			var dstContext = dstCanvas.getContext("2d");
+			var dstImg = dstContext.getImageData(0, 0, imgWidth, imgHeight);
+			var dstData = dstImg.data;
+			//Grayscale Human eye
+			var dst2Canvas = document.getElementById("HumanGrayscale");
+			var dst2Context = dst2Canvas.getContext("2d");
+			var dst2Img = dst2Context.getImageData(0, 0, imgWidth, imgHeight);
+			var dst2Data = dst2Img.data;
+			//RGBA
+			var dst3Canvas = document.getElementById("RGBMinis");
+			var dst3Context = dst3Canvas.getContext("2d");
+			var dst3Img = dst3Context.getImageData(0, 0, imgWidth, imgHeight);
+			var dst3Data = dst3Img.data;
+			//CMYK
+			var dst4Canvas = document.getElementById("CMYKMinis");
+			var dst4Context = dst4Canvas.getContext("2d");
+			var dst4Img = dst4Context.getImageData(0, 0, imgWidth, imgHeight);
+			var dst4Data = dst4Img.data;
+			
+		//seting size of canvases to source image size
+			dstCanvas.width=srcCanvas.width
+			dstCanvas.height=srcCanvas.height
+			dst2Canvas.width=srcCanvas.width
+			dst2Canvas.height=srcCanvas.height
+			dst3Canvas.width=srcCanvas.width
+			dst3Canvas.height=srcCanvas.height
+			dst4Canvas.width=srcCanvas.width
+			dst4Canvas.height=srcCanvas.height
+
+			
+		//generating Grayscale canvas contents	
+			for (var i = 0; i < srcData.length; i += 4) {
+				//rgb extraction
+				var red = srcData[i];
+				var green = srcData[i + 1];
+				var blue = srcData[i + 2];
+				var alpha = srcData[i + 3];
+				
+				//Grayscale calculations
+				var AvgGSC = (red + green + blue)/3 
+				var HumanGSC =  0.299 * red + 0.587 * green + 0.114 * blue
+
+				//Grayscale 1.0
+				dstData[i] = AvgGSC;
+				dstData[i + 1] = AvgGSC;
+				dstData[i + 2] = AvgGSC;
+				dstData[i + 3] = alpha;
+				//Grayscale 2.0
+				dst2Data[i] = HumanGSC;
+				dst2Data[i + 1] = HumanGSC;
+				dst2Data[i + 2] = HumanGSC;
+				dst2Data[i + 3] = alpha;
+
+			};
+		//generating RGBA/CMYK canvas contents
+			for(var y = 0; y < imgHeight; y+=2) {
+				for(var x = 0; x < imgWidth; x+=2) {
+					//movement in miniatures
+					var firstQ= (imgWidth/2 * y + x/2) * 4
+					var secondQ= (imgWidth/2 * y + (x+imgWidth)/2) * 4
+					var thirdQ= (imgWidth/2 * (y+imgHeight) + x/2) * 4
+					var fourthQ= (imgWidth/2 * (y+imgHeight) + (x+imgWidth)/2) * 4
+
+					//rgb extraction
+					var red = srcData[((imgWidth * y) + x) * 4];
+					var green = srcData[((imgWidth * y) + x) * 4 + 1];
+					var blue = srcData[((imgWidth * y) + x) * 4 + 2];
+					var alpha = srcData[((imgWidth * y) + x) * 4 + 3];
+
+					//cmyk generation
+					var cyan = 255 - red;
+					var magenta = 255 - green;
+					var yellow = 255 - blue;
+					var black = Math.min(cyan,magenta,yellow)
+					cyan-=black
+					magenta-=black
+					yellow-=black
+
+//rgba canvas
+					//Red
+					dst3Data[firstQ] = red;
+					dst3Data[firstQ + 1] = 0;
+					dst3Data[firstQ + 2] = 0;
+					dst3Data[firstQ + 3] = alpha;
+					//Green
+					dst3Data[secondQ] = 0;
+					dst3Data[secondQ + 1] = green;
+					dst3Data[secondQ + 2] = 0;
+					dst3Data[secondQ + 3] = alpha;
+					//Blue
+					dst3Data[thirdQ] = 0;
+					dst3Data[thirdQ + 1] = 0;
+					dst3Data[thirdQ + 2] = blue;
+					dst3Data[thirdQ + 3] = alpha;
+					//Alpha > GSC
+					dst3Data[fourthQ] = 255 - alpha;
+					dst3Data[fourthQ + 1] = 255 - alpha;
+					dst3Data[fourthQ + 2] = 255 - alpha;
+					dst3Data[fourthQ + 3] = 255;
+
+					//cmyk canvas
+					//Cyan
+					dst4Data[firstQ] = 255 - cyan;
+					dst4Data[firstQ+1] = 255;
+					dst4Data[firstQ+2] = 255;
+					dst4Data[firstQ+3] = 255;
+					//Magenta
+					dst4Data[secondQ] = 255;
+					dst4Data[secondQ+1] = 255 - magenta;
+					dst4Data[secondQ + 2] = 255;
+					dst4Data[secondQ + 3] = 255;
+					//Yellow
+					dst4Data[thirdQ] = 255
+					dst4Data[thirdQ+1] = 255;
+					dst4Data[thirdQ + 2] = 255 - yellow;
+					dst4Data[thirdQ + 3] = 255;
+					//Black
+					dst4Data[fourthQ] = 255 - black;
+					dst4Data[fourthQ + 1] = 255 - black;
+					dst4Data[fourthQ + 2] = 255 - black;
+					dst4Data[fourthQ + 3] = 255;					
+				};	
+			};
+		//drawing out the data
+			dstContext.putImageData(dstImg, 0, 0); //Grayscale AVG
+			dst2Context.putImageData(dst2Img, 0, 0); //Grayscale Human eye
+			dst3Context.putImageData(dst3Img, 0, 0); //RGBA
+			dst4Context.putImageData(dst4Img, 0, 0); //CMYK
+		};
+	};
+</script>
+</body>
+</html>

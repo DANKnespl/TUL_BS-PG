@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<title>RGB to Bitmap</title>
+</head>
+
+<body>
+	<canvas id="src" width="256" height="256"></canvas>
+	<canvas id="histogram" width="256" height="256"></canvas>
+	<canvas id="histogram2" width="256" height="256"></canvas>
+	<br/>
+	<input type="file" id="file" onchange="handleFileSelect(this)" name="files[]"/>
+	<h3>Hlavní histogram: </h3>
+	<ul>
+		<li>červený <input type="radio" id="Rbox" name="MainHistogram" value="0" onchange="DrawHistograms(false)"></li> 
+		<li>zelený <input type="radio" id="Gbox" name="MainHistogram" value="1" onchange="DrawHistograms(false)"></li> 
+		<li>modrý <input type="radio" id="Bbox" name="MainHistogram" value="2" onchange="DrawHistograms(false)"></li> 
+		<li>jasový <input type="radio" id="Ybox" name="MainHistogram" value="3" onchange="DrawHistograms(false)" checked></li> 
+	</ul>
+</body>
+
+<script type="text/javascript" src="./script.js"></script>
+
+</html>

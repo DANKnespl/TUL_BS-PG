@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<title>RGB to Bitmap</title>
+</head>
+
+<body>
+	<canvas id="person" width="256" height="256"></canvas>
+    <canvas id="background" width="256" height="256"></canvas>
+    <canvas id="logo" width="256" height="256"></canvas>
+    <canvas id="result" width="256" height="256"></canvas>
+	<br/>
+	<input type="file" id="file" onchange="handleFileSelect(this, 'person')" name="files[]"/>
+    <input type="file" id="file" onchange="handleFileSelect(this, 'background')" name="files[]"/>
+    <input type="file" id="file" onchange="handleFileSelect(this, 'logo')" name="files[]"/>
+	<br/>
+	<ul>
+		<li>klíčovaná barva <input type="color" id="clr" value="#00ff00"/></li> 
+		<li>
+			tolerance červené 
+			<input type="range" id="r" min="0" max="255" value="150" step="1" onchange="tolChangeRange(this);"/>
+			<input type="number" id="r2" min="0" max="255" value="150" onchange="tolChangeNumber(this);"/>
+		</li>
+		<li>
+			tolerance zelené 
+			<input type="range" id="g" min="0" max="255" value="130" step="1" onchange="tolChangeRange(this);"/>
+			<input type="number" id="g2" min="0" max="255" value="130" onchange="tolChangeNumber(this);"/>
+		</li>
+		<li>
+			tolerance modré 
+			<input type="range" id="b" min="0" max="255" value="140" step="1" onchange="tolChangeRange(this);"/>
+			<input type="number" id="b2" min="0" max="255" value="140" onchange="tolChangeNumber(this);"/>
+		</li>
+	</ul>
+	<button type="button" id="convert" disabled>Convert</button>
+</body>
+
+<script type="text/javascript" src="./script.js"></script>
+
+</html>                                          
